@@ -388,7 +388,7 @@
         },
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(variables('vmName'), '/DeployK8SbyAKSe')]",
+          "name": "[concat(variables('vmName'), '/DeployK8SbyAKSeAndKickoffTina')]",
           "apiVersion": "2015-06-15",
           "location": "[variables('location')]",
           "dependsOn": [
@@ -404,48 +404,14 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/deployK8SbyAKSe.ps1"
+                  "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/DeployK8SbyAKSe.ps1",
+                  "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/ClientTools.ps1",
+                  "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/Main.ps1"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File deployK8SbyAKSe.ps1', ' -StampLocation ', variables('location'), ' -OrchestratorRelease ', parameters('orchestratorRelease'), ' -OrchestratorVersion ', parameters('orchestratorVersion'), ' -PortalURL ', parameters('portalURL'), ' -IdentitySystem ', parameters('identitySystem'), ' -DnsPrefix ', parameters('clusterName'), ' -K8SAdminUser ', parameters('K8SAdminUser'), ' -K8SPublicKey ', variables('K8SPublicKey'),  ' -K8SPClientId ', parameters('servicePrincipalClientId'), ' -K8SSPSecret ', parameters('servicePrincipalClientSecret'), ' -AzureEnv ', parameters('azureEnv'), ' -AzsK8SSubscriptionId ', variables('subscriptionId'), ' -AzsK8SResourceGroup ', variables('k8sResourceGroup'), ' -AKSeVersion ', parameters('AKSeVersion'))]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File Main.ps1', ' -StampLocation ', variables('location'), ' -OrchestratorRelease ', parameters('orchestratorRelease'), ' -OrchestratorVersion ', parameters('orchestratorVersion'), ' -PortalURL ', parameters('portalURL'), ' -IdentitySystem ', parameters('identitySystem'), ' -DnsPrefix ', parameters('clusterName'), ' -K8SAdminUser ', parameters('K8SAdminUser'), ' -K8SPublicKey ', variables('K8SPublicKey'),  ' -K8SPClientId ', parameters('servicePrincipalClientId'), ' -K8SSPSecret ', parameters('servicePrincipalClientSecret'), ' -K8STenantId ', parameters('tenantId'), ' -AzureEnv ', parameters('azureEnv'), ' -AzsK8SSubscriptionId ', variables('subscriptionId'), ' -AzsK8SResourceGroup ', variables('k8sResourceGroup'), ' -AKSeVersion ', parameters('AKSeVersion'), ' -AdminUsername ', parameters('adminUsername'), ' -AZDATA_USERNAME ', parameters('AZDATA_USERNAME'), ' -AZDATA_PASSWORD ', parameters('AZDATA_PASSWORD'), ' -ACCEPT_EULA ', parameters('ACCEPT_EULA'), ' -REGISTRY_USERNAME ', parameters('REGISTRY_USERNAME'), ' -REGISTRY_PASSWORD ', parameters('REGISTRY_PASSWORD'), ' -ARC_DC_NAME ', parameters('ARC_DC_NAME'), ' -ARC_DC_SUBSCRIPTION ', parameters('ARC_DC_SUBSCRIPTION'), ' -ARC_DC_REGION ', parameters('ARC_DC_REGION'), ' -ARC_DC_RESOURCEGROUP ', parameters('ARC_DC_RESOURCEGROUP'), ' -DOCKER_REGISTRY ', parameters('DOCKER_REGISTRY'), ' -DOCKER_REPOSITORY ', parameters('DOCKER_REPOSITORY'), ' -DOCKER_TAG ', parameters('DOCKER_TAG'))]"
             }            
           }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
-            "name": "ArcTinaLinkedTemplate",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
-                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), '/extensions/DeployK8SbyAKSe')]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri":"https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/dc_vanilla/arcclient_vm_deployment.json",
-                    "contentVersion":"1.0.0.0"
-                },
-                "parameters": {
-                    "vmName":{"value": "[variables('vmName')]"},
-                    "adminUsername":{"value": "[parameters('adminUsername')]"},
-                    "servicePrincipalClientId":{"value": "[parameters('servicePrincipalClientId')]"},
-                    "servicePrincipalClientSecret":{"value": "[parameters('servicePrincipalClientSecret')]"},
-                    "tenantId":{"value": "[parameters('tenantId')]"},
-                    "resourceGroup":{"value": "[parameters('ARC_DC_RESOURCEGROUP')]"},
-                    "clusterName":{"value": "[parameters('clusterName')]"},
-                    "AZDATA_USERNAME":{"value": "[parameters('AZDATA_USERNAME')]"},
-                    "AZDATA_PASSWORD":{"value": "[parameters('AZDATA_PASSWORD')]"},
-                    "ACCEPT_EULA":{"value": "[parameters('ACCEPT_EULA')]"},
-                    "REGISTRY_USERNAME":{"value": "[parameters('REGISTRY_USERNAME')]"},
-                    "REGISTRY_PASSWORD":{"value": "[parameters('REGISTRY_PASSWORD')]"},
-                    "ARC_DC_NAME":{"value": "[parameters('ARC_DC_NAME')]"},
-                    "ARC_DC_SUBSCRIPTION":{"value": "[parameters('ARC_DC_SUBSCRIPTION')]"},
-                    "ARC_DC_REGION":{"value": "[parameters('ARC_DC_REGION')]"},
-                    "DOCKER_REGISTRY":{"value": "[parameters('DOCKER_REGISTRY')]"},
-                    "DOCKER_REPOSITORY":{"value": "[parameters('DOCKER_REPOSITORY')]"},
-                    "DOCKER_TAG":{"value": "[parameters('DOCKER_TAG')]"}
-                }     
-            }
-        }                        
+        }
     ],
 
     

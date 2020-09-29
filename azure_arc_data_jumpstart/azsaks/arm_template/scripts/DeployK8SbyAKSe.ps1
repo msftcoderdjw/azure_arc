@@ -92,23 +92,36 @@ Write-Host "Generating running api model..." -ForegroundColor Green
 $apiModelJson | ConvertTo-Json -Depth 100  | Out-File $APIModelLocation -Encoding ascii -Force
 
 Write-Host "Deploying K8S cluster by AKSe, using API model: $((Get-Item $APIModelLocation).FullName), using AKSe: $AKSeBinaryLocation"  -ForegroundColor Green
-if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($AzsK8SSubscriptionId) -or [string]::IsNullOrEmpty($K8SPClientId) `
-    -or [string]::IsNullOrEmpty($K8SSPSecret) -or [string]::IsNullOrEmpty($StampLocation) -or [string]::IsNullOrEmpty($AzsK8SResourceGroup) `
-    -or [string]::IsNullOrEmpty($AzureEnv) -or [string]::IsNullOrEmpty($IdentitySystem)) {
-    Write-Host "Required parameter is null or empty, please check..." -ForegroundColor Green
+$KUBECONFIGPath = "$WorkingDir\_output\$DnsPrefix\kubeconfig\kubeconfig.$($StampLocation).json"
+if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
+    if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($AzsK8SSubscriptionId) -or [string]::IsNullOrEmpty($K8SPClientId) `
+        -or [string]::IsNullOrEmpty($K8SSPSecret) -or [string]::IsNullOrEmpty($StampLocation) -or [string]::IsNullOrEmpty($AzsK8SResourceGroup) `
+        -or [string]::IsNullOrEmpty($AzureEnv) -or [string]::IsNullOrEmpty($IdentitySystem)) {
+        Write-Error "Required parameter is null or empty, please check..."
+        Pop-Location
+        Stop-Transcript
+        exit 1
+    }
+
+    & $AKSeBinaryLocation deploy --subscription-id $AzsK8SSubscriptionId --client-id $K8SPClientId `
+        --client-secret $K8SSPSecret --location $StampLocation --resource-group $AzsK8SResourceGroup --api-model $((Get-Item $APIModelLocation).FullName) `
+        --azure-env $AzureEnv --identity-system $IdentitySystem
+} else {
+    Write-Host "$KUBECONFIGPath already exists, will skip the K8S deployment" -ForegroundColor Yellow
+}
+
+# locate the k8s config file
+if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
+    Write-Error "$KUBECONFIGPath doesn't exist after K8S deployment, please check..."
     Pop-Location
     Stop-Transcript
     exit 1
 }
 
-& $AKSeBinaryLocation deploy --subscription-id $AzsK8SSubscriptionId --client-id $K8SPClientId `
-    --client-secret $K8SSPSecret --location $StampLocation --resource-group $AzsK8SResourceGroup --api-model $((Get-Item $APIModelLocation).FullName) `
-    --azure-env $AzureEnv --identity-system $IdentitySystem
-
-# locate the k8s config file
-$KUBECONFIG = Get-Item "$WorkingDir\_output\$DnsPrefix\kubeconfig\$($StampLocation)*.json"
-Write-Host "Using kube config file: $($kubeConfig.FullName)" -ForegroundColor Yellow
+$KUBECONFIG = Get-Item $KUBECONFIGPath
+Write-Host "Using kube config file: $($kubeConfig.FullName)" -ForegroundColor Green
 [System.Environment]::SetEnvironmentVariable('KUBECONFIG', $KUBECONFIG,[System.EnvironmentVariableTarget]::Machine)
+
 Pop-Location
 Stop-Transcript
 exit 0
