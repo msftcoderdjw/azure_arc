@@ -2,6 +2,64 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "AKSeVersion": {
+            "type": "string",
+            "defaultValue": "aks-engine-v0.55.4-windows-amd64",
+            "allowedValues" : ["aks-engine-v0.55.4-windows-amd64"],
+            "metadata": {
+                "description": "The AKSe version. (used in AKSe)"
+            }
+        },
+        "orchestratorRelease": {
+            "type": "string",
+            "defaultValue": "1.17",
+            "metadata" : {
+                "description": "The OrchestratorRelease of the kubernetes cluster. (used in AKSe)"
+            }
+        },
+        "orchestratorVersion": {
+            "type": "string",
+            "defaultValue": "1.17.11",
+            "metadata" : {
+                "description": "The OrchestratorVersion of the kubernetes cluster. (used in AKSe)"
+            }
+        },
+        "portalURL": {
+            "type": "string",
+            "defaultValue": "https://portal.shanghai.int.azurestack.corp.microsoft.com/",
+            "metadata" : {
+                "description": "The tenant portal address of the Azure Stack Hub stamp. (used in AKSe)"
+            }
+        },
+        "identitySystem": {
+            "type": "string",
+            "defaultValue": "azure_ad",
+            "allowedValues" : ["azure_ad","adfs"],
+            "metadata" : {
+                "description": "The identity system of the Azure Stack Hub stamp. (used in AKSe)"
+            }
+        },
+        "azureEnv": {
+            "type": "string",
+            "defaultValue": "AzureStackCloud",
+            "allowedValues" : ["AzureStackCloud"],
+            "metadata" : {
+                "description": "AzureStack Hub always uses AzureStackCloud (used in AKSe)"
+            }
+        },
+        "K8SAdminUser": {
+            "type": "string",
+            "defaultValue": "azureuser",
+            "metadata" : {
+                "description": "The adminuser of K8S cluster VM (used in AKSe)"
+            }
+        },
+        "K8SPublicKey": {
+            "type": "string",
+            "metadata" : {
+                "description": "The public key of K8S cluster VM (used in AKSe)"
+            }
+        },
         "vmName": {
             "type": "string",
             "defaultValue": "Arc-Data-Client",
@@ -66,6 +124,12 @@
             "type": "string",
             "metadata": {
                 "description": "Target AKS cluster Resource Group"
+            }
+        },
+        "subscriptionId": {
+            "type": "string",
+            "metadata": {
+                "description": "Target AKS cluster Subscription Id"
             }
         },
         "clusterName": {
@@ -328,7 +392,7 @@
         },
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(variables('vmName'),'/ClientTools')]",
+          "name": "[concat(variables('vmName'),'/deployK8SbyAKSe')]",
           "apiVersion": "2019-07-01",
           "location": "[parameters('location')]",
           "dependsOn": [
@@ -344,9 +408,9 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
-                "https://raw.githubusercontent.com/microsoft/azure_arc/master/azure_arc_data_jumpstart/aks/arm_template/dc_vanilla/scripts/ClientTools.ps1"
+                "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/deployK8SbyAKSe.ps1"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File ClientTools.ps1', ' -servicePrincipalClientId ', parameters('servicePrincipalClientId'), ' -servicePrincipalClientSecret ', parameters('servicePrincipalClientSecret'), ' -adminUsername ', parameters('adminUsername'), ' -tenantId ', parameters('tenantId'), ' -resourceGroup ', parameters('resourceGroup'), ' -clusterName ', parameters('clusterName'), ' -AZDATA_USERNAME ', parameters('AZDATA_USERNAME'), ' -AZDATA_PASSWORD ', parameters('AZDATA_PASSWORD'), ' -ACCEPT_EULA ', parameters('ACCEPT_EULA'), ' -REGISTRY_USERNAME ', parameters('REGISTRY_USERNAME'), ' -REGISTRY_PASSWORD ', parameters('REGISTRY_PASSWORD'), ' -ARC_DC_NAME ', parameters('ARC_DC_NAME'), ' -ARC_DC_SUBSCRIPTION ', parameters('ARC_DC_SUBSCRIPTION'), ' -ARC_DC_REGION ', parameters('ARC_DC_REGION'), ' -DOCKER_REGISTRY ', parameters('DOCKER_REGISTRY'), ' -DOCKER_REPOSITORY ', parameters('DOCKER_REPOSITORY'), ' -DOCKER_TAG ', parameters('DOCKER_TAG'))]" 
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File deployK8SbyAKSe.ps1', ' -StampLocation ', parameters('location'), ' -OrchestratorRelease ', parameters('orchestratorRelease'), ' -OrchestratorVersion ', parameters('orchestratorVersion'), ' -PortalURL ', parameters('portalURL'), ' -IdentitySystem ', parameters('identitySystem'), ' -DnsPrefix ', parameters('clusterName'), ' -K8SAdminUser ', parameters('K8SAdminUser'), ' -K8SPublicKey ', parameters('K8SPublicKey'), ' -K8SPClientId ', parameters('servicePrincipalClientId'), ' -K8SSPSecret ', parameters('servicePrincipalClientSecret'), ' -AzureEnv ', parameters('azureEnv'), ' -AzsK8SSubscriptionId ', parameters('subscriptionId'), ' -AzsK8SResourceGroup ', parameters('resourceGroup'), ' -AKSeVersion ', parameters('AKSeVersion'))]"
             }            
           }
         }                        

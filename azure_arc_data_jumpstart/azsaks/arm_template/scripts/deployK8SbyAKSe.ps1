@@ -13,7 +13,9 @@ param (
     [string] $AzureEnv="AzureStackCloud",
     [string] $AzsK8SSubscriptionId="5b0b159e-daae-4ef1-af7d-6441c656227b",
     [string] $AzsK8SResourceGroup="k8s-jiadutest1",
-    [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json"
+    [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json",
+    [ValidateSet("aks-engine-v0.55.4-windows-amd64")]
+    [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64"
 )
 
 $Params2APIModelPropsKeyMapping = @{
@@ -37,7 +39,6 @@ $WorkingDir = "C:\k8stmp"
 if (-not(Test-Path -Path $WorkingDir -PathType Container)) {
     New-Item -Path $WorkingDir -ItemType "directory" -Force
 }
-$AKSeVersion = "aks-engine-v0.55.4-windows-amd64"
 Invoke-WebRequest "https://aksereleases.blob.core.windows.net/public/$($AKSeVersion).zip" -OutFile "$WorkingDir\$($AKSeVersion).zip"
 Expand-Archive "$WorkingDir\$($AKSeVersion).zip" -DestinationPath "$WorkingDir" -Force
 $AKSeBinaryLocation = "$WorkingDir\$($AKSeVersion)\aks-engine.exe"
