@@ -27,7 +27,6 @@ param (
     [string] $ARC_DC_SUBSCRIPTION="746a51ba-0bd4-497f-89cc-f955a5db3bc8",
     [string] $ARC_DC_REGION="eastus",
     [string] $ARC_DC_RESOURCEGROUP="jiadu-TINA-Test-RG",
-    [string] $chocolateyAppList,
     [string] $DOCKER_REGISTRY="mcr.microsoft.com",
     [string] $DOCKER_REPOSITORY="arcdata",
     [string] $DOCKER_TAG="latest"
@@ -45,5 +44,5 @@ powershell.exe -ExecutionPolicy Bypass -File $PSScriptRoot\DeployK8SbyAKSe.ps1 -
 powershell.exe -ExecutionPolicy Bypass -File $PSScriptRoot\ClientTools.ps1 -servicePrincipalClientId $K8SPClientId `
     -servicePrincipalClientSecret $K8SSPSecret -adminUsername $AdminUsername -tenantId $K8STenantId -clusterName $DnsPrefix `
     -resourceGroup $ARC_DC_RESOURCEGROUP -AZDATA_USERNAME $AZDATA_USERNAME -AZDATA_PASSWORD $AZDATA_PASSWORD -ACCEPT_EULA $ACCEPT_EULA -REGISTRY_USERNAME $REGISTRY_USERNAME `
-    -REGISTRY_PASSWORD $REGISTRY_PASSWORD -ARC_DC_NAME $ARC_DC_NAME -ARC_DC_SUBSCRIPTION $ARC_DC_SUBSCRIPTION -ARC_DC_REGION $ARC_DC_REGION -chocolateyAppList $chocolateyAppList `
+    -REGISTRY_PASSWORD $REGISTRY_PASSWORD -ARC_DC_NAME $ARC_DC_NAME -ARC_DC_SUBSCRIPTION $ARC_DC_SUBSCRIPTION -ARC_DC_REGION $ARC_DC_REGION `
     -DOCKER_REGISTRY $DOCKER_REGISTRY -DOCKER_REPOSITORY $DOCKER_REPOSITORY -DOCKER_TAG $DOCKER_TAG

@@ -45,55 +45,56 @@ Write-Verbose -Message $($PSBoundParameters | ConvertTo-Json)  -Verbose
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
 
-# Installing tools
-Invoke-WebRequest "https://aksereleases.blob.core.windows.net/public/$($AKSeVersion).zip" -OutFile "$WorkingDir\$($AKSeVersion).zip"
-Expand-Archive "$WorkingDir\$($AKSeVersion).zip" -DestinationPath "$WorkingDir" -Force
-$AKSeBinaryLocation = "$WorkingDir\$($AKSeVersion)\aks-engine.exe"
-
-$APIModelSampleLocation = "$WorkingDir\apimodel.json"
-$APIModelLocation = "$WorkingDir\apimodel-running.json"
-# Get the command name
-$CommandName = $PSCmdlet.MyInvocation.InvocationName;
-# Get the list of parameters for the command
-$ParameterList = (Get-Command -Name $CommandName).Parameters;
-
-# Using current folder as the running folder
-Invoke-WebRequest $SampleAPIModelLocation -OutFile $APIModelSampleLocation
-$apiModelJson = Get-Content $APIModelSampleLocation | ConvertFrom-Json
-# Composing the api model file
-foreach ($key in $ParameterList.Keys) {
-    $value = (Get-Variable $key -ErrorAction SilentlyContinue).Value
-    if ($Params2APIModelPropsKeyMapping.ContainsKey($key) -and ![string]::IsNullOrEmpty($value)) {
-        $jsonKey = $Params2APIModelPropsKeyMapping[$key]
-        Write-Host "Writing $value to $jsonKey" -ForegroundColor Yellow
-        $hierachies = $jsonKey.split(".")
-        $obj = $apiModelJson.PSObject.Properties
-        for($i=0; $i -lt ($hierachies.Count-1); $i++) {
-            $name = $hierachies[$i]
-            if ($name.EndsWith("[]")) {
-                # array, will pick item0
-                $obj = ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value[0].PSObject.Properties
-            } else {
-                # object, will pick value
-                $obj = ($obj | Where-Object {$_.Name -eq $name}).Value.PSObject.Properties
-            }
-        }
-        $name = $hierachies[$hierachies.Count - 1]
-        if ($name.EndsWith("[]")) {
-            # array
-            ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value = @($value)
-        } else {
-            # object
-            ($obj | Where-Object {$_.Name -eq $name}).Value = $value
-        }
-    }
-}
-Write-Host "Generating running api model..." -ForegroundColor Green
-$apiModelJson | ConvertTo-Json -Depth 100  | Out-File $APIModelLocation -Encoding ascii -Force
-
-Write-Host "Deploying K8S cluster by AKSe, using API model: $((Get-Item $APIModelLocation).FullName), using AKSe: $AKSeBinaryLocation"  -ForegroundColor Green
 $KUBECONFIGPath = "$WorkingDir\_output\$DnsPrefix\kubeconfig\kubeconfig.$($StampLocation).json"
 if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
+    # Installing tools
+    Invoke-WebRequest "https://aksereleases.blob.core.windows.net/public/$($AKSeVersion).zip" -OutFile "$WorkingDir\$($AKSeVersion).zip"
+    Expand-Archive "$WorkingDir\$($AKSeVersion).zip" -DestinationPath "$WorkingDir" -Force
+    $AKSeBinaryLocation = "$WorkingDir\$($AKSeVersion)\aks-engine.exe"
+
+    $APIModelSampleLocation = "$WorkingDir\apimodel.json"
+    $APIModelLocation = "$WorkingDir\apimodel-running.json"
+    # Get the command name
+    $CommandName = $PSCmdlet.MyInvocation.InvocationName;
+    # Get the list of parameters for the command
+    $ParameterList = (Get-Command -Name $CommandName).Parameters;
+
+    # Using current folder as the running folder
+    Invoke-WebRequest $SampleAPIModelLocation -OutFile $APIModelSampleLocation
+    $apiModelJson = Get-Content $APIModelSampleLocation | ConvertFrom-Json
+    # Composing the api model file
+    foreach ($key in $ParameterList.Keys) {
+        $value = (Get-Variable $key -ErrorAction SilentlyContinue).Value
+        if ($Params2APIModelPropsKeyMapping.ContainsKey($key) -and ![string]::IsNullOrEmpty($value)) {
+            $jsonKey = $Params2APIModelPropsKeyMapping[$key]
+            Write-Host "Writing $value to $jsonKey" -ForegroundColor Yellow
+            $hierachies = $jsonKey.split(".")
+            $obj = $apiModelJson.PSObject.Properties
+            for($i=0; $i -lt ($hierachies.Count-1); $i++) {
+                $name = $hierachies[$i]
+                if ($name.EndsWith("[]")) {
+                    # array, will pick item0
+                    $obj = ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value[0].PSObject.Properties
+                } else {
+                    # object, will pick value
+                    $obj = ($obj | Where-Object {$_.Name -eq $name}).Value.PSObject.Properties
+                }
+            }
+            $name = $hierachies[$hierachies.Count - 1]
+            if ($name.EndsWith("[]")) {
+                # array
+                ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value = @($value)
+            } else {
+                # object
+                ($obj | Where-Object {$_.Name -eq $name}).Value = $value
+            }
+        }
+    }
+    Write-Host "Generating running api model..." -ForegroundColor Green
+    $apiModelJson | ConvertTo-Json -Depth 100  | Out-File $APIModelLocation -Encoding ascii -Force
+
+    Write-Host "Deploying K8S cluster by AKSe, using API model: $((Get-Item $APIModelLocation).FullName), using AKSe: $AKSeBinaryLocation"  -ForegroundColor Green
+
     if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($AzsK8SSubscriptionId) -or [string]::IsNullOrEmpty($K8SPClientId) `
         -or [string]::IsNullOrEmpty($K8SSPSecret) -or [string]::IsNullOrEmpty($StampLocation) -or [string]::IsNullOrEmpty($AzsK8SResourceGroup) `
         -or [string]::IsNullOrEmpty($AzureEnv) -or [string]::IsNullOrEmpty($IdentitySystem)) {
