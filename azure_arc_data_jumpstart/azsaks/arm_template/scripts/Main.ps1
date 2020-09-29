@@ -35,13 +35,15 @@ param (
 
 
 # Step01 - Deploy a K8S cluster through AKSe
-& $PSScriptRoot\DeployK8SbyAKSe.ps1 -StampLocation $StampLocation -OrchestratorRelease $OrchestratorRelease -OrchestratorVersion $OrchestratorVersion -PortalURL $PortalURL `
+powershell.exe -ExecutionPolicy Bypass -File $PSScriptRoot\DeployK8SbyAKSe.ps1 -StampLocation $StampLocation `
+    -OrchestratorRelease $OrchestratorRelease -OrchestratorVersion $OrchestratorVersion -PortalURL $PortalURL `
     -IdentitySystem $IdentitySystem -DnsPrefix $DnsPrefix -K8SAdminUser $K8SAdminUser -K8SPublicKey $K8SPublicKey -K8SPClientId $K8SPClientId `
     -K8SSPSecret $K8SSPSecret -AzureEnv $AzureEnv -AzsK8SSubscriptionId $AzsK8SSubscriptionId -AzsK8SResourceGroup $AzsK8SResourceGroup -SampleAPIModelLocation $SampleAPIModelLocation `
     -AKSeVersion $AKSeVersion
 
 # Step02 - Run ClientTools.ps1 for azdata deployment
-& $PSScriptRoot\ClientTools.ps1 -servicePrincipalClientId $K8SPClientId -servicePrincipalClientSecret $K8SSPSecret -adminUsername $AdminUsername -tenantId $K8STenantId -clusterName $DnsPrefix `
+powershell.exe -ExecutionPolicy Bypass -File $PSScriptRoot\ClientTools.ps1 -servicePrincipalClientId $K8SPClientId `
+    -servicePrincipalClientSecret $K8SSPSecret -adminUsername $AdminUsername -tenantId $K8STenantId -clusterName $DnsPrefix `
     -resourceGroup $ARC_DC_RESOURCEGROUP -AZDATA_USERNAME $AZDATA_USERNAME -AZDATA_PASSWORD $AZDATA_PASSWORD -ACCEPT_EULA $ACCEPT_EULA -REGISTRY_USERNAME $REGISTRY_USERNAME `
     -REGISTRY_PASSWORD $REGISTRY_PASSWORD -ARC_DC_NAME $ARC_DC_NAME -ARC_DC_SUBSCRIPTION $ARC_DC_SUBSCRIPTION -ARC_DC_REGION $ARC_DC_REGION -chocolateyAppList $chocolateyAppList `
     -DOCKER_REGISTRY $DOCKER_REGISTRY -DOCKER_REPOSITORY $DOCKER_REPOSITORY -DOCKER_TAG $DOCKER_TAG
