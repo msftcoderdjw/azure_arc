@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AKSeVersion": {
+            "value": "aks-engine-v0.55.4-windows-amd64"
+        },
+        "orchestratorRelease": {
+            "value": "1.17"
+        },
+        "orchestratorVersion": {
+            "value": "1.17.11"
+        },
+        "portalURL": {
+            "value": "https://portal.shanghai.int.azurestack.corp.microsoft.com/"
+        },
+        "identitySystem": {
+            "value": "azure_ad"
+        },
+        "K8SAdminUser": {
+            "value": "azureuser"
+        },
+        "K8SPublicKey": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCbYi6m97Dtl9vcy7L8KPuzs1iU8hAAvAQp+DQsh1YzhGJL1oh5wZcqrKiUOQGfjpY7VEOWW6Boarv7Jc0aeB9sZzzkpFj3nDrucytOYeA9HBXY43aCofRkrY69+6YGjEwqtMoqZsvqXe8wpZf+Kl4zy4WOrETWS4JUQNjk1h0UOrcZGPbbltZKS73kJtD5RKEV0tne9oBGRqN/xaXbutSDkSnbNCqoPUfqnO1p0hn4po+J6BMPEYlzz6SD6rPzlYMSyk+MX2kh0TEgZHxubhoTpYq2vSkK+7fP235FRpt+5BRz1Mpom0APhmsjjoLGTmGx+kaSUab2u7CPDNy0+rB7 fareast\\jiadu@jiadu-dev1"
+        },
+        "adminUsername": {
+            "value": "arcdemo"
+        },
+        "adminPassword": {
+            "value": "ArcPassword123"
+        },
+        "servicePrincipalClientId": {
+            "value": "a154f21f-1c5f-4da5-867b-22f7aa5afcc4"
+        },
+        "servicePrincipalClientSecret": {
+            "value": "9Bw4.25O96K6A35pRegG.CqsIP1~0ida6~"
+        },
+        "tenantId": {
+            "value": "c157313f-ec36-46f2-ac00-d17e0d28b1cd"
+        },
+        "clusterName": {
+            "value": "jiaduk8s2"
+        },
+        "AZDATA_USERNAME": {
+            "value": "arcdemo"
+        },
+        "AZDATA_PASSWORD": {
+            "value": "ArcPassword123!!"
+        },
+        "ACCEPT_EULA": {
+            "value": "yes"
+        },
+        "ARC_DC_NAME": {
+            "value": "jiaduk8s2-arcdata"
+        },
+        "ARC_DC_RESOURCEGROUP": {
+            "value": "jiadu-TINA-Test-RG"
+        },
+        "ARC_DC_SUBSCRIPTION": {
+            "value": "746a51ba-0bd4-497f-89cc-f955a5db3bc8"
+        },
+        "ARC_DC_REGION": {
+            "value": "eastus"
+        },
+		"windowsOSVersion": {
+			"value": "2016-Datacenter"
+		}
+    }
+}

@@ -18,6 +18,15 @@ param (
     [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64"
 )
 
+$WorkingDir = "C:\k8stmp"
+if (-not(Test-Path -Path $WorkingDir -PathType Container)) {
+    New-Item -Path $WorkingDir -ItemType "directory" -Force
+}
+
+Start-Transcript "$WorkingDir\Logs\DeployK8S_$($(Get-Date).ToString("yyyy-MM-dd-HH-mm-ss")).txt"
+$ErrorActionPreference = 'Stop'
+
+Push-Location $WorkingDir
 $Params2APIModelPropsKeyMapping = @{
     "StampLocation" = "location"
     "OrchestratorRelease" = "properties.orchestratorProfile.orchestratorRelease"
@@ -34,11 +43,9 @@ $Params2APIModelPropsKeyMapping = @{
 Write-Verbose -Message "Using Parameters: " -Verbose
 Write-Verbose -Message $($PSBoundParameters | ConvertTo-Json)  -Verbose
 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
+
 # Installing tools
-$WorkingDir = "C:\k8stmp"
-if (-not(Test-Path -Path $WorkingDir -PathType Container)) {
-    New-Item -Path $WorkingDir -ItemType "directory" -Force
-}
 Invoke-WebRequest "https://aksereleases.blob.core.windows.net/public/$($AKSeVersion).zip" -OutFile "$WorkingDir\$($AKSeVersion).zip"
 Expand-Archive "$WorkingDir\$($AKSeVersion).zip" -DestinationPath "$WorkingDir" -Force
 $AKSeBinaryLocation = "$WorkingDir\$($AKSeVersion)\aks-engine.exe"
@@ -89,6 +96,8 @@ if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($Az
     -or [string]::IsNullOrEmpty($K8SSPSecret) -or [string]::IsNullOrEmpty($StampLocation) -or [string]::IsNullOrEmpty($AzsK8SResourceGroup) `
     -or [string]::IsNullOrEmpty($AzureEnv) -or [string]::IsNullOrEmpty($IdentitySystem)) {
     Write-Host "Required parameter is null or empty, please check..." -ForegroundColor Green
+    Pop-Location
+    Stop-Transcript
     exit 1
 }
 
@@ -97,8 +106,9 @@ if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($Az
     --azure-env $AzureEnv --identity-system $IdentitySystem
 
 # locate the k8s config file
-$KUBECONFIG = Get-Item "$WorkingDir\_output\$AzsK8SResourceGroup\kubeconfig\$($StampLocation)*.json"
+$KUBECONFIG = Get-Item "$WorkingDir\_output\$DnsPrefix\kubeconfig\$($StampLocation)*.json"
 Write-Host "Using kube config file: $($kubeConfig.FullName)" -ForegroundColor Yellow
 [System.Environment]::SetEnvironmentVariable('KUBECONFIG', $KUBECONFIG,[System.EnvironmentVariableTarget]::Machine)
-
+Pop-Location
+Stop-Transcript
 exit 0

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "AKSeVersion": {
@@ -82,22 +82,15 @@
             }
         },       
         "windowsOSVersion": {
-        "type": "string",
-        "defaultValue": "2019-Datacenter",
-        "metadata": {
-            "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
-            }
-        },
-        "location": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
+            "defaultValue": "2019-Datacenter",
             "metadata": {
-                "description": "Location for all resources."
-            }
+                "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+                }
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_D8s_v3",
+            "defaultValue": "Standard_DS12_v2",
             "metadata": {
                 "description": "The size of the VM"
             }
@@ -118,18 +111,6 @@
             "type": "string",
             "metadata": {
                 "description": "Unique SPN tenant ID"
-            }
-        },
-        "resourceGroup": {
-            "type": "string",
-            "metadata": {
-                "description": "Target AKS cluster Resource Group"
-            }
-        },
-        "subscriptionId": {
-            "type": "string",
-            "metadata": {
-                "description": "Target AKS cluster Subscription Id"
             }
         },
         "clusterName": {
@@ -159,12 +140,14 @@
         },
         "REGISTRY_USERNAME": {
             "type": "string",
+            "defaultValue": "not_specified",
             "metadata": {
                 "description": "Private Azure Arc Data Container Registry Username"
             }
         },
         "REGISTRY_PASSWORD": {
             "type": "string",
+            "defaultValue": "not_specified",
             "metadata": {
                 "description": "Private Azure Arc Data Container Registry Password"
             }
@@ -173,6 +156,12 @@
             "type": "string",
             "metadata": {
                 "description": "Arc Data Controller name"
+            }
+        },
+        "ARC_DC_RESOURCEGROUP": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group on Azure which is associated with TINA"
             }
         },
         "ARC_DC_SUBSCRIPTION": {
@@ -189,22 +178,25 @@
         },
         "DOCKER_REGISTRY": {
             "type": "string",
+            "defaultValue": "mcr.microsoft.com",
             "metadata": {
-                "description": "Private Azure Arc Data Container Registry "
+                "description": "Azure Arc Data Container Registry"
             }
         },
         "DOCKER_REPOSITORY": {
             "type": "string",
+            "defaultValue": "arcdata",
             "metadata": {
-                "description": "Private Azure Arc Data Container Registry Repository"
+                "description": "Azure Arc Data Container Registry Repository"
             }
         },
         "DOCKER_TAG": {
             "type": "string",
+            "defaultValue": "latest",
             "metadata": {
-                "description": "Private Azure Arc Data Container Image Tag"
+                "description": "Azure Arc Data Container Tag"
             }
-        },                              
+        },                           
         "virtualNetworkName": {
             "type": "string",
             "defaultValue": "Arc-Data-Client-VNET",
@@ -240,14 +232,18 @@
         "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
         "osDiskType": "Premium_LRS",
         "subnetAddressPrefix": "10.1.0.0/24",
-        "addressPrefix": "10.1.0.0/16"
+        "addressPrefix": "10.1.0.0/16",
+        "k8sResourceGroup": "[concat(resourceGroup().name, '-K8S')]",
+        "subscriptionId": "[subscription().subscriptionId]",
+        "location": "[resourceGroup().location]",
+        "K8SPublicKey": "[concat('\"', parameters('K8SPublicKey'), '\"')]"
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-10-01",
+            "apiVersion": "2017-10-01",
             "name": "[variables('networkInterfaceName')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
@@ -275,9 +271,9 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-02-01",
+            "apiVersion": "2017-10-01",
             "name": "[parameters('networkSecurityGroupName')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "properties": {
                 "securityRules": [
                     {
@@ -311,9 +307,9 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-04-01",
+            "apiVersion": "2017-10-01",
             "name": "[parameters('virtualNetworkName')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -334,9 +330,9 @@
         },
         {
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2019-02-01",
+            "apiVersion": "2017-10-01",
             "name": "[variables('publicIpAddressName')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "properties": {
                 "publicIpAllocationMethod": "Static",
                 "publicIPAddressVersion": "IPv4",
@@ -349,9 +345,9 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-03-01",
+            "apiVersion": "2017-03-30",
             "name": "[variables('vmName')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "tags": "[parameters('resourceTags')]",            
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
@@ -392,27 +388,63 @@
         },
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(variables('vmName'),'/deployK8SbyAKSe')]",
-          "apiVersion": "2019-07-01",
-          "location": "[parameters('location')]",
+          "name": "[concat(variables('vmName'), '/DeployK8SbyAKSe')]",
+          "apiVersion": "2015-06-15",
+          "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
           ],
           "tags": {
-              "displayName": "config-choco"
+              "displayName": "config-k8s"
           },          
           "properties": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.10",
+            "typeHandlerVersion": "1.4",
             "autoUpgradeMinorVersion": true,
             "settings": {
               "fileUris": [
                 "https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/scripts/deployK8SbyAKSe.ps1"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File deployK8SbyAKSe.ps1', ' -StampLocation ', parameters('location'), ' -OrchestratorRelease ', parameters('orchestratorRelease'), ' -OrchestratorVersion ', parameters('orchestratorVersion'), ' -PortalURL ', parameters('portalURL'), ' -IdentitySystem ', parameters('identitySystem'), ' -DnsPrefix ', parameters('clusterName'), ' -K8SAdminUser ', parameters('K8SAdminUser'), ' -K8SPublicKey ', parameters('K8SPublicKey'), ' -K8SPClientId ', parameters('servicePrincipalClientId'), ' -K8SSPSecret ', parameters('servicePrincipalClientSecret'), ' -AzureEnv ', parameters('azureEnv'), ' -AzsK8SSubscriptionId ', parameters('subscriptionId'), ' -AzsK8SResourceGroup ', parameters('resourceGroup'), ' -AKSeVersion ', parameters('AKSeVersion'))]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File deployK8SbyAKSe.ps1', ' -StampLocation ', variables('location'), ' -OrchestratorRelease ', parameters('orchestratorRelease'), ' -OrchestratorVersion ', parameters('orchestratorVersion'), ' -PortalURL ', parameters('portalURL'), ' -IdentitySystem ', parameters('identitySystem'), ' -DnsPrefix ', parameters('clusterName'), ' -K8SAdminUser ', parameters('K8SAdminUser'), ' -K8SPublicKey ', variables('K8SPublicKey'),  ' -K8SPClientId ', parameters('servicePrincipalClientId'), ' -K8SSPSecret ', parameters('servicePrincipalClientSecret'), ' -AzureEnv ', parameters('azureEnv'), ' -AzsK8SSubscriptionId ', variables('subscriptionId'), ' -AzsK8SResourceGroup ', variables('k8sResourceGroup'), ' -AKSeVersion ', parameters('AKSeVersion'))]"
             }            
           }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "ArcTinaLinkedTemplate",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), '/extensions/DeployK8SbyAKSe')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri":"https://raw.githubusercontent.com/msftcoderdjw/azure_arc/master/azure_arc_data_jumpstart/azsaks/arm_template/dc_vanilla/arcclient_vm_deployment.json",
+                    "contentVersion":"1.0.0.0"
+                },
+                "parameters": {
+                    "vmName":{"value": "[variables('vmName')]"},
+                    "adminUsername":{"value": "[parameters('adminUsername')]"},
+                    "servicePrincipalClientId":{"value": "[parameters('servicePrincipalClientId')]"},
+                    "servicePrincipalClientSecret":{"value": "[parameters('servicePrincipalClientSecret')]"},
+                    "tenantId":{"value": "[parameters('tenantId')]"},
+                    "resourceGroup":{"value": "[parameters('ARC_DC_RESOURCEGROUP')]"},
+                    "clusterName":{"value": "[parameters('clusterName')]"},
+                    "AZDATA_USERNAME":{"value": "[parameters('AZDATA_USERNAME')]"},
+                    "AZDATA_PASSWORD":{"value": "[parameters('AZDATA_PASSWORD')]"},
+                    "ACCEPT_EULA":{"value": "[parameters('ACCEPT_EULA')]"},
+                    "REGISTRY_USERNAME":{"value": "[parameters('REGISTRY_USERNAME')]"},
+                    "REGISTRY_PASSWORD":{"value": "[parameters('REGISTRY_PASSWORD')]"},
+                    "ARC_DC_NAME":{"value": "[parameters('ARC_DC_NAME')]"},
+                    "ARC_DC_SUBSCRIPTION":{"value": "[parameters('ARC_DC_SUBSCRIPTION')]"},
+                    "ARC_DC_REGION":{"value": "[parameters('ARC_DC_REGION')]"},
+                    "DOCKER_REGISTRY":{"value": "[parameters('DOCKER_REGISTRY')]"},
+                    "DOCKER_REPOSITORY":{"value": "[parameters('DOCKER_REPOSITORY')]"},
+                    "DOCKER_TAG":{"value": "[parameters('DOCKER_TAG')]"}
+                }     
+            }
         }                        
     ],
 

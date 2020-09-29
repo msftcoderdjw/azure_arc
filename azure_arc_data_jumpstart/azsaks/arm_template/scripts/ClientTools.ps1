@@ -101,13 +101,6 @@ New-Item -path alias:azdata -value 'C:\Program Files (x86)\Microsoft SDKs\Azdata
 $LogonScript = @'
 Start-Transcript -Path C:\tmp\LogonScript.log
 
-<#
-$azurePassword = ConvertTo-SecureString $env:servicePrincipalClientSecret -AsPlainText -Force
-$psCred = New-Object System.Management.Automation.PSCredential($env:servicePrincipalClientId , $azurePassword)
-Connect-AzAccount -Credential $psCred -TenantId $env:tenantId -ServicePrincipal
-Import-AzAksCredential -ResourceGroupName $env:resourceGroup -Name $env:clusterName -Force
-#>
-
 kubectl get nodes
 azdata --version
 
