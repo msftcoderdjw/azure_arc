@@ -123,9 +123,6 @@
           "name": "[concat(variables('vmName'),'/ClientTools')]",
           "apiVersion": "2015-06-15",
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-          ],
           "tags": {
               "displayName": "config-choco"
           },          
