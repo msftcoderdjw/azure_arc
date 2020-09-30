@@ -15,7 +15,8 @@ param (
     [string] $AzsK8SResourceGroup="k8s-jiadutest1",
     [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json",
     [ValidateSet("aks-engine-v0.55.4-windows-amd64")]
-    [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64"
+    [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64",
+    [string] $AgentPoolVMSize="Standard_DS12_v2"
 )
 
 $WorkingDir = "C:\k8stmp"
@@ -38,6 +39,7 @@ $Params2APIModelPropsKeyMapping = @{
     "K8SPublicKey" = "properties.linuxProfile.ssh.publicKeys[].keyData"
     "K8SPClientId" = "properties.servicePrincipalProfile.clientId"
     "K8SSPSecret" = "properties.servicePrincipalProfile.secret"
+    "AgentPoolVMSize" = "properties.agentPoolProfiles[].vmSize"
 }
 
 Write-Verbose -Message "Using Parameters: " -Verbose
