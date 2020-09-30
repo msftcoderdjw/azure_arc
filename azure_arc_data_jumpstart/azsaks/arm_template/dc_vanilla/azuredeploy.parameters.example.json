@@ -39,7 +39,7 @@
             "value": "c157313f-ec36-46f2-ac00-d17e0d28b1cd"
         },
         "clusterName": {
-            "value": "jiaduk8s2"
+            "value": "jiaduk8s"
         },
         "AZDATA_USERNAME": {
             "value": "arcdemo"
@@ -51,7 +51,7 @@
             "value": "yes"
         },
         "ARC_DC_NAME": {
-            "value": "jiaduk8s2-arcdata"
+            "value": "jiaduk8s-arcdata"
         },
         "ARC_DC_RESOURCEGROUP": {
             "value": "jiadu-TINA-Test-RG"
@@ -61,9 +61,6 @@
         },
         "ARC_DC_REGION": {
             "value": "eastus"
-        },
-		"windowsOSVersion": {
-			"value": "2016-Datacenter"
-		}
+        }
     }
 }
