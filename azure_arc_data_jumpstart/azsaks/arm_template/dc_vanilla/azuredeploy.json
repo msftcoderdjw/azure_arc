@@ -4,8 +4,8 @@
     "parameters": {
         "AKSeVersion": {
             "type": "string",
-            "defaultValue": "aks-engine-v0.55.4-windows-amd64",
-            "allowedValues" : ["aks-engine-v0.55.4-windows-amd64"],
+            "defaultValue": "0.55.4",
+            "allowedValues" : ["0.55.4"],
             "metadata": {
                 "description": "The AKSe version. (used in AKSe)"
             }

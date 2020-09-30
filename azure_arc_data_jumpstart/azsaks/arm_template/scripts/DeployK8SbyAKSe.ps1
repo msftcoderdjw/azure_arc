@@ -14,8 +14,8 @@ param (
     [string] $AzsK8SSubscriptionId="5b0b159e-daae-4ef1-af7d-6441c656227b",
     [string] $AzsK8SResourceGroup="k8s-jiadutest1",
     [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json",
-    [ValidateSet("aks-engine-v0.55.4-windows-amd64")]
-    [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64",
+    [ValidateSet("0.55.4")]
+    [string] $AKSeVersion="0.55.4",
     [string] $AgentPoolVMSize="Standard_DS12_v2"
 )
 
@@ -50,10 +50,19 @@ Write-Verbose -Message $($PSBoundParameters | ConvertTo-Json)  -Verbose
 
 $KUBECONFIGPath = "$WorkingDir\_output\$DnsPrefix\kubeconfig\kubeconfig.$($StampLocation).json"
 if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
-    # Installing tools
-    Invoke-WebRequest "https://aksereleases.blob.core.windows.net/public/$($AKSeVersion).zip" -OutFile "$WorkingDir\$($AKSeVersion).zip"
-    Expand-Archive "$WorkingDir\$($AKSeVersion).zip" -DestinationPath "$WorkingDir" -Force
-    $AKSeBinaryLocation = "$WorkingDir\$($AKSeVersion)\aks-engine.exe"
+    # Installing tools: choco & aks-engine
+    try{
+        choco config get cacheLocation
+    }catch{
+        Write-Output "Chocolatey not detected, trying to install now"
+        # workaround for WS 2016
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    }
+    Write-Host "Installing aks-engine $AKSeVersion" -ForegroundColor Green
+    & choco install aks-engine --version $AKSeVersion -y -Force| Write-Output
+
+    $AKSeBinaryLocation = "aks-engine.exe"
 
     $APIModelSampleLocation = "$WorkingDir\apimodel.json"
     $APIModelLocation = "$WorkingDir\apimodel-running.json"

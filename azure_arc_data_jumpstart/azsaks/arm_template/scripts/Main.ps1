@@ -15,8 +15,8 @@ param (
     [string] $AzsK8SSubscriptionId="5b0b159e-daae-4ef1-af7d-6441c656227b",
     [string] $AzsK8SResourceGroup="k8s-jiadutest1",
     [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json",
-    [ValidateSet("aks-engine-v0.55.4-windows-amd64")]
-    [string] $AKSeVersion="aks-engine-v0.55.4-windows-amd64",
+    [ValidateSet("0.55.4")]
+    [string] $AKSeVersion="0.55.4",
     [string] $AdminUsername="arcdemo",
     [string] $AZDATA_USERNAME="arcdemo",
     [string] $AZDATA_PASSWORD="ArcPassword123!!",
