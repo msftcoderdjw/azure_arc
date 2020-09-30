@@ -19,6 +19,9 @@ param (
     [string]$DOCKER_TAG
 )
 
+# workaround for WS 2016
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
+
 [System.Environment]::SetEnvironmentVariable('servicePrincipalClientId', $servicePrincipalClientId,[System.EnvironmentVariableTarget]::Machine)
 [System.Environment]::SetEnvironmentVariable('servicePrincipalClientSecret', $servicePrincipalClientSecret,[System.EnvironmentVariableTarget]::Machine)
 [System.Environment]::SetEnvironmentVariable('adminUsername', $adminUsername,[System.EnvironmentVariableTarget]::Machine)
@@ -55,6 +58,8 @@ workflow ClientTools_01
                                 choco config get cacheLocation
                             }catch{
                                 Write-Output "Chocolatey not detected, trying to install now"
+                                # workaround for WS 2016
+                                [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
                                 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
                             }
                         }

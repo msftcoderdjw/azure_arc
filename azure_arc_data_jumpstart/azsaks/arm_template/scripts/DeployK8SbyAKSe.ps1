@@ -43,6 +43,7 @@ $Params2APIModelPropsKeyMapping = @{
 Write-Verbose -Message "Using Parameters: " -Verbose
 Write-Verbose -Message $($PSBoundParameters | ConvertTo-Json)  -Verbose
 
+# workaround for WS 2016
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.ServicePointManager]::SecurityProtocol
 
 $KUBECONFIGPath = "$WorkingDir\_output\$DnsPrefix\kubeconfig\kubeconfig.$($StampLocation).json"
