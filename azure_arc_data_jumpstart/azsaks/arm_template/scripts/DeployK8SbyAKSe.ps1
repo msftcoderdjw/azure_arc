@@ -120,7 +120,7 @@ if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
     $cmd = "$AKSeBinaryLocation deploy --subscription-id $AzsK8SSubscriptionId --client-id $K8SPClientId --client-secret $K8SSPSecret --location $StampLocation --resource-group $AzsK8SResourceGroup --api-model $((Get-Item $APIModelLocation).FullName) --azure-env $AzureEnv --identity-system $IdentitySystem"
     $deployTempFile = "$WorkingDir\deployAKS.ps1"
     "$cmd | Tee-Object -FilePath $AKSeLogFile" > $deployTempFile
-    & $deployTempFile
+    powershell.exe $deployTempFile
 } else {
     Write-Host "$KUBECONFIGPath already exists, will skip the K8S deployment" -ForegroundColor Yellow
 }
