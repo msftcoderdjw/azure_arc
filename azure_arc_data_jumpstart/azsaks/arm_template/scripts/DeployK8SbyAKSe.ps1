@@ -24,7 +24,9 @@ if (-not(Test-Path -Path $WorkingDir -PathType Container)) {
     New-Item -Path $WorkingDir -ItemType "directory" -Force
 }
 
-Start-Transcript "$WorkingDir\Logs\DeployK8S_$($(Get-Date).ToString("yyyy-MM-dd-HH-mm-ss")).txt"
+$timestampStr = $(Get-Date).ToString("yyyy-MM-dd-HH-mm-ss")
+Start-Transcript "$WorkingDir\Logs\DeployK8S_$($timestampStr).txt"
+$AKSeLogFile = "$WorkingDir\Logs\AKSe_$($AKSeVersion)_$($timestampStr).txt"
 $ErrorActionPreference = 'Stop'
 
 Push-Location $WorkingDir
@@ -106,7 +108,7 @@ if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
     $apiModelJson | ConvertTo-Json -Depth 100  | Out-File $APIModelLocation -Encoding ascii -Force
 
     Write-Host "Deploying K8S cluster by AKSe, using API model: $((Get-Item $APIModelLocation).FullName), using AKSe: $AKSeBinaryLocation"  -ForegroundColor Green
-
+    
     if ([string]::IsNullOrEmpty($AKSeBinaryLocation) -or [string]::IsNullOrEmpty($AzsK8SSubscriptionId) -or [string]::IsNullOrEmpty($K8SPClientId) `
         -or [string]::IsNullOrEmpty($K8SSPSecret) -or [string]::IsNullOrEmpty($StampLocation) -or [string]::IsNullOrEmpty($AzsK8SResourceGroup) `
         -or [string]::IsNullOrEmpty($AzureEnv) -or [string]::IsNullOrEmpty($IdentitySystem)) {
@@ -115,10 +117,10 @@ if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
         Stop-Transcript
         exit 1
     }
-
-    & $AKSeBinaryLocation deploy --subscription-id $AzsK8SSubscriptionId --client-id $K8SPClientId `
-        --client-secret $K8SSPSecret --location $StampLocation --resource-group $AzsK8SResourceGroup --api-model $((Get-Item $APIModelLocation).FullName) `
-        --azure-env $AzureEnv --identity-system $IdentitySystem
+    $cmd = "$AKSeBinaryLocation deploy --subscription-id $AzsK8SSubscriptionId --client-id $K8SPClientId --client-secret $K8SSPSecret --location $StampLocation --resource-group $AzsK8SResourceGroup --api-model $((Get-Item $APIModelLocation).FullName) --azure-env $AzureEnv --identity-system $IdentitySystem"
+    $deployTempFile = "$WorkingDir\deployAKS.ps1"
+    "$cmd | Tee-Object -FilePath $AKSeLogFile" > $deployTempFile
+    & $deployTempFile
 } else {
     Write-Host "$KUBECONFIGPath already exists, will skip the K8S deployment" -ForegroundColor Yellow
 }
