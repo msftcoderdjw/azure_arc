@@ -16,7 +16,8 @@ param (
     [string] $SampleAPIModelLocation="https://raw.githubusercontent.com/Azure/aks-engine/master/examples/azure-stack/kubernetes-azurestack.json",
     [ValidateSet("0.55.4")]
     [string] $AKSeVersion="0.55.4",
-    [string] $AgentPoolVMSize="Standard_DS12_v2"
+    [string] $AgentPoolVMSize="Standard_DS12_v2",
+    [string] $OrchestratorType="Kubernetes"
 )
 
 $WorkingDir = "C:\k8stmp"
@@ -42,6 +43,7 @@ $Params2APIModelPropsKeyMapping = @{
     "K8SPClientId" = "properties.servicePrincipalProfile.clientId"
     "K8SSPSecret" = "properties.servicePrincipalProfile.secret"
     "AgentPoolVMSize" = "properties.agentPoolProfiles[].vmSize"
+    "OrchestratorType" = "properties.orchestratorProfile.orchestratorType"
 }
 
 Write-Verbose -Message "Using Parameters: " -Verbose
@@ -83,15 +85,18 @@ if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
             $jsonKey = $Params2APIModelPropsKeyMapping[$key]
             Write-Host "Writing $value to $jsonKey" -ForegroundColor Yellow
             $hierachies = $jsonKey.split(".")
-            $obj = $apiModelJson.PSObject.Properties
+            $psobj = $apiModelJson
+            $obj = $psobj.PSObject.Properties
             for($i=0; $i -lt ($hierachies.Count-1); $i++) {
                 $name = $hierachies[$i]
                 if ($name.EndsWith("[]")) {
                     # array, will pick item0
-                    $obj = ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value[0].PSObject.Properties
+                    $psobj = ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value[0]
+                    $obj = $psobj.PSObject.Properties
                 } else {
                     # object, will pick value
-                    $obj = ($obj | Where-Object {$_.Name -eq $name}).Value.PSObject.Properties
+                    $psobj = ($obj | Where-Object {$_.Name -eq $name}).Value
+                    $obj = $psobj.PSObject.Properties
                 }
             }
             $name = $hierachies[$hierachies.Count - 1]
@@ -100,7 +105,12 @@ if (-not (Test-Path -Path $KUBECONFIGPath -PathType Leaf)) {
                 ($obj | Where-Object {$_.Name -eq $name.TrimEnd("[]")}).Value = @($value)
             } else {
                 # object
-                ($obj | Where-Object {$_.Name -eq $name}).Value = $value
+                if ($obj | Where-Object {$_.Name -eq $name}) {
+                    ($obj | Where-Object {$_.Name -eq $name}).Value = $value
+                } else {
+                    Write-Host "There's no property naming as $name, creating..."
+                    $psobj | Add-Member -MemberType NoteProperty -Name $name -Value $value
+                }
             }
         }
     }
