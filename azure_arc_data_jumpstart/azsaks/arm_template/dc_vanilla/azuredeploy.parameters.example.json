@@ -21,7 +21,7 @@
             "value": "azureuser"
         },
         "K8SPublicKey": {
-            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCbYi6m97Dtl9vcy7L8KPuzs1iU8hAAvAQp+DQsh1YzhGJL1oh5wZcqrKiUOQGfjpY7VEOWW6Boarv7Jc0aeB9sZzzkpFj3nDrucytOYeA9HBXY43aCofRkrY69+6YGjEwqtMoqZsvqXe8wpZf+Kl4zy4WOrETWS4JUQNjk1h0UOrcZGPbbltZKS73kJtD5RKEV0tne9oBGRqN/xaXbutSDkSnbNCqoPUfqnO1p0hn4po+J6BMPEYlzz6SD6rPzlYMSyk+MX2kh0TEgZHxubhoTpYq2vSkK+7fP235FRpt+5BRz1Mpom0APhmsjjoLGTmGx+kaSUab2u7CPDNy0+rB7 fareast\\jiadu@jiadu-dev1"
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCr9tTMA55azXL0o1iwWQqqzmE4snTZLMQxoa1RzHiZn1T2wxgsbSRh9ij88AbwD6v0fdtZcUbX6sEdfRgJ+1VBv/1FrwSipeCzME8Tn7PffKdt3MFhiRnES2VWZ7Kjgs7BB0Rv3ZdS+dWKYdMPnOVIInDoy92la8QizPFlZ0e8pWem0sVy2/QjJNG/5HH3pKrJG4a5iaRWfV2mZS3SetB64PHwusrYc/vWCdDXSauM50cOFr9amBgNDjFcPR0Pv6yJrJDgBOf0qP57pmSsm8tj5RiAe/9FyRHMKebajvpP95BWT7x+BiGPQgOL/vFRGairOina4QTmhcVqNe7Lgk8Z+OF4+kQuRs5FpEABAnj2Ro9lWgR001jg4o6r+vi0aOwtYkWXCTCMvfvV9qzqfsVttsexfGs3ykUVM4tSQTbpW8bfuxd7DAX+N8pEQL/UZAWkvbD+FM1mzwID74WZqxMjF6+gZTNxWV7pIwNtTmYLECv8oyR9bXMP+VuDhsP43NdKu1Me2dI6IAwrERxnipT0vyMSKtPuOvVqKfg/PPpPOkAX1sskvcCAM6AGkJphoyJtkbCJIyLLm/LAottJLXohGlytovYjgm0J1DoslRHMuqEJMOKq84jFl7m1nRp6oRlWIMLABmJ2j2gBevWYmoEg4J8TbjX1avozt3PP84N+Jw== fareast\\jiadu@cn-jiadu-1013"
         },
         "adminUsername": {
             "value": "arcdemo"
@@ -39,7 +39,7 @@
             "value": "c157313f-ec36-46f2-ac00-d17e0d28b1cd"
         },
         "clusterName": {
-            "value": "jiaduk8s"
+            "value": "jd-2012bugbash"
         },
         "AZDATA_USERNAME": {
             "value": "arcdemo"
@@ -51,7 +51,7 @@
             "value": "yes"
         },
         "ARC_DC_NAME": {
-            "value": "jiaduk8s-arcdata"
+            "value": "jd-2012bugbash-arcdata-1"
         },
         "ARC_DC_RESOURCEGROUP": {
             "value": "jiadu-TINA-Test-RG"

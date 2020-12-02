@@ -77,7 +77,7 @@ workflow ClientTools_01
                     }
                     Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2142211" -OutFile "C:\tmp\azuredatastudio.zip"
                     Invoke-WebRequest "https://raw.githubusercontent.com/microsoft/azure_arc/master/azure_arc_data_jumpstart/aks/arm_template/dc_vanilla/settings.json" -OutFile "C:\tmp\settings.json"
-                    Invoke-WebRequest "https://aka.ms/azdata-msi" -OutFile "C:\tmp\AZDataCLI.msi"
+                    Invoke-WebRequest "https://artprodeus21.artifacts.visualstudio.com/A9b05fcc6-a345-44a2-9731-291c161745ec/3d5f9117-a442-4242-9d62-51a9e4b80e97/_apis/artifact/cGlwZWxpbmVhcnRpZmFjdDovL3NxbGhlbHNpbmtpL3Byb2plY3RJZC8zZDVmOTExNy1hNDQyLTQyNDItOWQ2Mi01MWE5ZTRiODBlOTcvYnVpbGRJZC8xNDIxMjgvYXJ0aWZhY3ROYW1lL21zaQ2/content?format=file&subPath=%2Fazdata-cli-20.2.5.msi" -OutFile "C:\tmp\AZDataCLI.msi"
                     Invoke-WebRequest "https://raw.githubusercontent.com/microsoft/azure_arc/master/azure_arc_data_jumpstart/aks/arm_template/dc_vanilla/scripts/DC_Cleanup.ps1" -OutFile "C:\tmp\DC_Cleanup.ps1"
                     Invoke-WebRequest "https://raw.githubusercontent.com/microsoft/azure_arc/master/azure_arc_data_jumpstart/aks/arm_template/dc_vanilla/scripts/DC_Deploy.ps1" -OutFile "C:\tmp\DC_Deploy.ps1"
                 }
